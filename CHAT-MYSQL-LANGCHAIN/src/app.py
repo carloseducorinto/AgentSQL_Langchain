@@ -64,13 +64,14 @@ if user_query is not None and user_query.strip() != '':
         st.markdown(user_query)
         
     with st.chat_message('AI'):
-        response = database.get_response(user_query, st.session_state.db, st.session_state.chat_history)
+        #response = database.get_response(user_query, st.session_state.db, st.session_state.chat_history)
+        response = st.write_stream(database.get_response(user_query, st.session_state.db, st.session_state.chat_history))
         #sql_chain = database.get_sql_chain(st.session_state.db)
         #response = sql_chain.invoke({
         #    "chat_history": st.session_state.chat_history,
         #    "question": user_query
         #}
         #)
-        st.markdown(response) 
+        #st.markdown(response) 
     
     st.session_state.chat_history.append(AIMessage(content=response))    

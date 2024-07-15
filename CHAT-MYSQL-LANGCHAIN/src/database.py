@@ -3,6 +3,7 @@ from langchain_core.prompts import ChatPromptTemplate
 from langchain_openai import ChatOpenAI
 from langchain_core.runnables import RunnablePassthrough
 from langchain_core.output_parsers import StrOutputParser
+from langchain_groq import ChatGroq 
 import os
 
 
@@ -42,7 +43,8 @@ class Database:
         """
         prompt = ChatPromptTemplate.from_template(template)
 
-        llm = ChatOpenAI(model='gpt-3.5-turbo', api_key=os.getenv('OPENAI_API_KEY'), temperature=0.1)
+        #llm = ChatOpenAI(model='gpt-3.5-turbo', api_key=os.getenv('OPENAI_API_KEY'), temperature=0.1)
+        llm = ChatGroq(model='mixtral-8x7b-32768', temperature=0)
         
         def get_schema(_):
             print('schema : ' + db.get_table_info())
@@ -75,13 +77,15 @@ class Database:
         
         prompt = ChatPromptTemplate.from_template(template)
         
-        llm = ChatOpenAI(model='gpt-3.5-turbo', api_key=os.getenv('OPENAI_API_KEY'), temperature=0.1)
+        #llm = ChatOpenAI(model='gpt-3.5-turbo', api_key=os.getenv('OPENAI_API_KEY'), temperature=0.1)
+        llm = ChatGroq(model='mixtral-8x7b-32768', temperature=0)
+        
         
         chain = (
             
             RunnablePassthrough.assign(query=sql_chain).assign(
                 schema = lambda _: db.get_table_info(),
-                response=lambda vars: db.run(vars["query"])
+                response=lambda vars: db.run(vars["query"])  #print('variables', vars) 
             )
             | prompt
             | llm
@@ -90,7 +94,7 @@ class Database:
     
         
         
-        return chain.invoke({
+        return chain.stream({
             "question": user_query,
             "chat_history": chat_history
         }
